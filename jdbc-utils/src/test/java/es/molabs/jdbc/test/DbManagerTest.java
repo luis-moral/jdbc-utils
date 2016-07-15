@@ -39,26 +39,26 @@ public class DbManagerTest
 	@Test
 	public void testInitialization()
 	{
-		// Volvemos a inicializarlo
+		// Initializes the manager again
 		dbManager.init(dataSource);
 		
-		// Comprobamos que siga inicializado
+		// Checks that is still initialized
 		boolean expectedValue = true;
 		boolean value = dbManager.isInitialized();
 		Assert.assertEquals("Value must be [" + expectedValue + "].", expectedValue, value);
 		
-		// Lo destruimos
+		// Destroys the manager
 		dbManager.destroy();
 		
-		// Comprobamos que no este inicialziado
+		// Checks that is not initialized
 		expectedValue = false;
 		value = dbManager.isInitialized();
 		Assert.assertEquals("Value must be [" + expectedValue + "].", expectedValue, value);
 		
-		// Volvemos a inicializarlo
+		// Initializes the manager again
 		dbManager.init(dataSource);
 		
-		// Comprobamos que este inicializado
+		// Checks that is initialized
 		expectedValue = true;
 		value = dbManager.isInitialized();
 		Assert.assertEquals("Value must be [" + expectedValue + "].", expectedValue, value);
@@ -94,7 +94,7 @@ public class DbManagerTest
 	@AfterClass
 	public static void runAfterClass() throws Throwable
 	{
-		// Eliminamos la base de datos
+		// Drops all the tables and deletes the database file
 		QueryRunner query = new QueryRunner(dataSource);
 		query.update("DROP ALL OBJECTS DELETE FILES");
 		

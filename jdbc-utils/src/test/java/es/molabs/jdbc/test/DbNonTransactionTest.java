@@ -252,6 +252,7 @@ public class DbNonTransactionTest
 		QueryRunner query = new QueryRunner(dataSource);
 		query.update("DROP ALL OBJECTS DELETE FILES");
 		
+		dbManager.destroy();
 		dbManager = null;
 	}
 }
