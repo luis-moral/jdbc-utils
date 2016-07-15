@@ -37,7 +37,7 @@ uploadArchives {
 		
         developers {
           developer {
-            id 'luis.moral'
+            id 'luis-moral'
             name 'Luis Moral Guerrero'
             email 'luis.moral@gmail.com'
           }
