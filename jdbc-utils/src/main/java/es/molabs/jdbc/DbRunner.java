@@ -108,17 +108,8 @@ public class DbRunner
 		// If it not exists
 		if (transaction == null)
 		{
-			// If its read only
-			if (readOnly)
-			{
-				// Creates a new read only transaction
-				transaction = newDbTransaction(readOnly);
-			}
-			else
-			{
-				// Creates a new transaction
-				transaction = newDbTransaction(readOnly);					
-			}
+			// Creates a new transaction
+			transaction = newDbTransaction(readOnly);
 		}
 		
 		// Returns the transaction
