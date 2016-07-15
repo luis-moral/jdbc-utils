@@ -33,7 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.google.common.base.Joiner;
 
 import es.molabs.jdbc.DbKeyHolder;
-import es.molabs.jdbc.DbRunner;
+import es.molabs.jdbc.DbManager;
 import es.molabs.jdbc.test.dao.TestTableOneDao;
 import es.molabs.jdbc.test.dao.TestTableOneMultipleInsertMapper;
 import es.molabs.jdbc.test.dao.TestTableOneRowMapper;
@@ -47,7 +47,7 @@ public class DbNonTransactionTest
 	private final static String TEST_TABLE_THREE = "test_table3";
 	
 	private static JdbcConnectionPool dataSource = null;
-	private static DbRunner dbRunner = null;
+	private static DbManager dbManager = null;
 	
 	@Test
 	public void testGetField() throws Throwable
@@ -56,11 +56,11 @@ public class DbNonTransactionTest
 		String value = null;
 		
 		// Test getting a field value
-		value = dbRunner.getDbNonTransaction().getField(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE id = ?", 1);		
+		value = dbManager.getDbNonTransaction().getField(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE id = ?", 1);		
 		Assert.assertEquals("Value must be [" + expectedValue + "].", expectedValue, value);
 		
 		// Test getting a field that does not exists
-		value = dbRunner.getDbNonTransaction().getField(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE id = ?", 99999);		
+		value = dbManager.getDbNonTransaction().getField(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE id = ?", 99999);		
 		Assert.assertEquals("Value must be [" + "null" + "].", null, value);
 	}
 	
@@ -72,7 +72,7 @@ public class DbNonTransactionTest
 		int index = 0;
 		
 		// Test getting a field list
-		varcharValueList = dbRunner.getDbNonTransaction().getFieldList(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE id IN (" + Joiner.on(",").join(1, 2, 3, 4, 5) + ") ORDER BY Id");
+		varcharValueList = dbManager.getDbNonTransaction().getFieldList(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE id IN (" + Joiner.on(",").join(1, 2, 3, 4, 5) + ") ORDER BY Id");
 		Iterator<String> iterator = varcharValueList.iterator();
 		while (iterator.hasNext())
 		{
@@ -83,7 +83,7 @@ public class DbNonTransactionTest
 		}	
 		
 		// Test getting a field list that does not exists
-		varcharValueList = dbRunner.getDbNonTransaction().getFieldList(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE id IN (" + Joiner.on(",").join(9999, 10000, 10001) + ") ORDER BY Id");
+		varcharValueList = dbManager.getDbNonTransaction().getFieldList(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE id IN (" + Joiner.on(",").join(9999, 10000, 10001) + ") ORDER BY Id");
 		Assert.assertEquals("Value must be [" + "null" + "].", null, varcharValueList);
 	}
 	
@@ -95,12 +95,12 @@ public class DbNonTransactionTest
 		TestTableOneDao testTableOneDao = null;
 		
 		// Test getting an object
-		testTableOneDao = dbRunner.getDbNonTransaction().getObject(TestTableOneRowMapper.getInstance(), "SELECT id, varchar_field, clob_field FROM " + TEST_TABLE_ONE + " WHERE id = ?", 1);		
+		testTableOneDao = dbManager.getDbNonTransaction().getObject(TestTableOneRowMapper.getInstance(), "SELECT id, varchar_field, clob_field FROM " + TEST_TABLE_ONE + " WHERE id = ?", 1);		
 		Assert.assertEquals("Value must be [" + expectedVarcharValue + "].", expectedVarcharValue, testTableOneDao.getVarcharField());
 		Assert.assertEquals("Value must be [" + expectedClobValue + "].", expectedClobValue, testTableOneDao.getClobField());
 		
 		// Test getting an object that does not exists
-		testTableOneDao = dbRunner.getDbNonTransaction().getObject(TestTableOneRowMapper.getInstance(), "SELECT id, varchar_field, clob_field FROM " + TEST_TABLE_ONE + " WHERE id = ?", 99999);		
+		testTableOneDao = dbManager.getDbNonTransaction().getObject(TestTableOneRowMapper.getInstance(), "SELECT id, varchar_field, clob_field FROM " + TEST_TABLE_ONE + " WHERE id = ?", 99999);		
 		Assert.assertEquals("Value must be [" + "null" + "].", null, testTableOneDao);
 	}
 	
@@ -113,7 +113,7 @@ public class DbNonTransactionTest
 		int index = 0;
 			
 		// Test getting an object list
-		testTableOneDaoList = dbRunner.getDbNonTransaction().getObjectList(TestTableOneRowMapper.getInstance(), "SELECT id, varchar_field, clob_field FROM " + TEST_TABLE_ONE + " WHERE id IN (" + Joiner.on(",").join(1, 2, 3, 4, 5) + ") ORDER BY Id");
+		testTableOneDaoList = dbManager.getDbNonTransaction().getObjectList(TestTableOneRowMapper.getInstance(), "SELECT id, varchar_field, clob_field FROM " + TEST_TABLE_ONE + " WHERE id IN (" + Joiner.on(",").join(1, 2, 3, 4, 5) + ") ORDER BY Id");
 		Iterator<TestTableOneDao> iterator = testTableOneDaoList.iterator();
 		while (iterator.hasNext())
 		{
@@ -126,7 +126,7 @@ public class DbNonTransactionTest
 		}	
 		
 		// Test getting an object list that does not exists
-		testTableOneDaoList = dbRunner.getDbNonTransaction().getObjectList(TestTableOneRowMapper.getInstance(), "SELECT id, varchar_field, clob_field FROM " + TEST_TABLE_ONE + " WHERE id IN (" + Joiner.on(",").join(9999, 10000, 10001) + ") ORDER BY Id");
+		testTableOneDaoList = dbManager.getDbNonTransaction().getObjectList(TestTableOneRowMapper.getInstance(), "SELECT id, varchar_field, clob_field FROM " + TEST_TABLE_ONE + " WHERE id IN (" + Joiner.on(",").join(9999, 10000, 10001) + ") ORDER BY Id");
 		Assert.assertEquals("Value must be [" + "null" + "].", null, testTableOneDaoList);	
 	}
 	
@@ -137,10 +137,10 @@ public class DbNonTransactionTest
 		String value = null;		
 		
 		// Executes a insert statement
-		dbRunner.getDbNonTransaction().executeUpdate("INSERT INTO " + TEST_TABLE_ONE + " (varchar_field, clob_field) VALUES (?, ?)", expectedValue, "clob_value6");		
+		dbManager.getDbNonTransaction().executeUpdate("INSERT INTO " + TEST_TABLE_ONE + " (varchar_field, clob_field) VALUES (?, ?)", expectedValue, "clob_value6");		
 		
 		// Checks that the value is correctly inserted
-		value = dbRunner.getDbNonTransaction().getField(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE varchar_field = ?", expectedValue);		
+		value = dbManager.getDbNonTransaction().getField(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE varchar_field = ?", expectedValue);		
 		Assert.assertEquals("Value must be [" + expectedValue + "].", expectedValue, value);
 	}
 	
@@ -160,10 +160,10 @@ public class DbNonTransactionTest
 		arguments[2][1] = "";
 						
 		// Executes a batch insert statement		
-		dbRunner.getDbNonTransaction().executeBatchUpdate("INSERT INTO " + TEST_TABLE_ONE + " (varchar_field, clob_field) VALUES (?, ?)", arguments);		
+		dbManager.getDbNonTransaction().executeBatchUpdate("INSERT INTO " + TEST_TABLE_ONE + " (varchar_field, clob_field) VALUES (?, ?)", arguments);		
 				
 		// Checks that the fields are correctly inserted	
-		long value = dbRunner.getDbNonTransaction().getField(Long.class, "SELECT COUNT (id) FROM " + TEST_TABLE_ONE + " WHERE varchar_field IN (?, ?, ?)", firstVarcharValue, secondVarcharValue, thridVarcharValue);
+		long value = dbManager.getDbNonTransaction().getField(Long.class, "SELECT COUNT (id) FROM " + TEST_TABLE_ONE + " WHERE varchar_field IN (?, ?, ?)", firstVarcharValue, secondVarcharValue, thridVarcharValue);
 		Assert.assertEquals("Value must be [" + arguments.length + "].", arguments.length, value);
 	}
 	
@@ -173,7 +173,7 @@ public class DbNonTransactionTest
 		long expectedId = 1;
 		
 		// Executes a insert statement
-		DbKeyHolder keyHolder = dbRunner.getDbNonTransaction().executeUpdateWithKeys("INSERT INTO " + TEST_TABLE_TWO + " (varchar_field, clob_field) VALUES (?, ?)", "aa", "bb");		
+		DbKeyHolder keyHolder = dbManager.getDbNonTransaction().executeUpdateWithKeys("INSERT INTO " + TEST_TABLE_TWO + " (varchar_field, clob_field) VALUES (?, ?)", "aa", "bb");		
 		
 		Assert.assertEquals("Value must be [" + expectedId + "].", expectedId, keyHolder.getFirstKey(Long.class).longValue());
 	}
@@ -183,7 +183,7 @@ public class DbNonTransactionTest
 	{
 		String expectedName = "varchar_field";
 		
-		TestResultSetMetaDataHandler handler = dbRunner.getDbNonTransaction().getResultSetMetaData(new TestResultSetMetaDataHandler(), "SELECT * FROM " + TEST_TABLE_ONE);
+		TestResultSetMetaDataHandler handler = dbManager.getDbNonTransaction().getResultSetMetaData(new TestResultSetMetaDataHandler(), "SELECT * FROM " + TEST_TABLE_ONE);
 		
 		Assert.assertEquals("Value must be [" + expectedName + "].", expectedName, handler.getSecondColumnName().toLowerCase());		
 	}
@@ -195,13 +195,13 @@ public class DbNonTransactionTest
 		int expectedCount = multipleInsertMapper.getValueGroups();		
 		
 		// Executes a multiple insert statement	
-		int inserts = dbRunner.getDbNonTransaction().multipleInsert("INSERT INTO " + TEST_TABLE_THREE + " (varchar_field, clob_field) VALUES ", multipleInsertMapper);		
+		int inserts = dbManager.getDbNonTransaction().multipleInsert("INSERT INTO " + TEST_TABLE_THREE + " (varchar_field, clob_field) VALUES ", multipleInsertMapper);		
 		
 		// Checks that two rows where updated
 		Assert.assertEquals("Value must be [" + expectedCount + "].", expectedCount, inserts);
 		
 		// Checks that there are two rows in the database
-		long count = dbRunner.getDbNonTransaction().getField(Long.class, "SELECT COUNT (id) FROM " + TEST_TABLE_THREE);
+		long count = dbManager.getDbNonTransaction().getField(Long.class, "SELECT COUNT (id) FROM " + TEST_TABLE_THREE);
 		
 		Assert.assertEquals("Value must be [" + expectedCount + "].", expectedCount, count);		
 	}
@@ -209,11 +209,11 @@ public class DbNonTransactionTest
 	@Test
 	public void testConnectionClosed() throws Throwable
 	{
-		dbRunner.getDbNonTransaction().getField(Integer.class, "SELECT id FROM " + TEST_TABLE_ONE + " WHERE id = ?", 1);		
+		dbManager.getDbNonTransaction().getField(Integer.class, "SELECT id FROM " + TEST_TABLE_ONE + " WHERE id = ?", 1);		
 		// Checks that there is no active connections
 		Assert.assertEquals("Value must be [" + 0 + "].", 0, dataSource.getActiveConnections());
 		
-		dbRunner.getDbNonTransaction().getField(Integer.class, "SELECT id FROM " + TEST_TABLE_ONE + " WHERE id = ?", 1);		
+		dbManager.getDbNonTransaction().getField(Integer.class, "SELECT id FROM " + TEST_TABLE_ONE + " WHERE id = ?", 1);		
 		// Checks that there is no active connections
 		Assert.assertEquals("Value must be [" + 0 + "].", 0, dataSource.getActiveConnections());
 	}
@@ -226,7 +226,8 @@ public class DbNonTransactionTest
 		url = url + "SET SCHEMA TEST_SCHEMA";	
 			
 		dataSource = JdbcConnectionPool.create(url, "testUser", "testPassword");;
-		dbRunner = new DbRunner(dataSource);
+		dbManager = new DbManager();
+		dbManager.init(dataSource);
 		
 		QueryRunner query = new QueryRunner(dataSource);
 		query.update(readSql("/es/molabs/jdbc/test/script/create_tables.sql"));
@@ -251,6 +252,6 @@ public class DbNonTransactionTest
 		QueryRunner query = new QueryRunner(dataSource);
 		query.update("DROP ALL OBJECTS DELETE FILES");
 		
-		dbRunner = null;
+		dbManager = null;
 	}
 }

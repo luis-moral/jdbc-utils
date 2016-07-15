@@ -21,21 +21,63 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbutils.QueryRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import es.molabs.jdbc.exception.DbException;
 import es.molabs.jdbc.exception.DbTransactionInProgressException;
 
-public class DbRunner
+public class DbManager
 {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
 	private final static String THREAD_LOCAL_DBTRANSACTION = "t_l_dbTransaction";
 		
-	private final QueryRunner queryRunner;
+	private QueryRunner queryRunner = null;
+	private boolean initialized;
 	
-	public DbRunner(DataSource dataSource)
+	public DbManager()
+	{
+		initialized = false;
+	}
+	
+	public void init(DataSource dataSource)
 	{		
-		queryRunner = new QueryRunner(dataSource);
-		
-		testConnection();
+		if (!initialized)
+		{
+			queryRunner = new QueryRunner(dataSource);
+			
+			testConnection();			
+			
+			// Sets the manager as initialized
+			initialized = true;
+			
+			logger.info("Initialized.");
+		}
+		else
+		{
+			logger.warn("Already initialized.");
+		}
+	}
+	
+	public void destroy()
+	{
+		if (initialized)
+		{
+			// Sets the manager as not initialized
+			initialized = false;
+			
+			logger.info("Destroyed.");
+		}
+		else
+		{
+			logger.warn("Already destroyed.");
+		}
+	}
+	
+	public boolean isInitialized()
+	{
+		return initialized;
 	}
 	
 	public DataSource getDataSource()

@@ -34,8 +34,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.google.common.base.Joiner;
 
 import es.molabs.jdbc.DbKeyHolder;
+import es.molabs.jdbc.DbManager;
 import es.molabs.jdbc.DbQuery;
-import es.molabs.jdbc.DbRunner;
 import es.molabs.jdbc.DbTransaction;
 import es.molabs.jdbc.exception.DbException;
 import es.molabs.jdbc.test.dao.TestTableOneDao;
@@ -51,7 +51,7 @@ public class DbTransactionTest
 	private final static String TEST_TABLE_THREE = "test_table3";
 	
 	private static JdbcConnectionPool dataSource = null;
-	private static DbRunner dbRunner = null;
+	private static DbManager dbManager = null;
 	
 	@Test
 	public void testGetField() throws Throwable
@@ -60,7 +60,7 @@ public class DbTransactionTest
 		String value = null;
 		
 		// Starts a transaction
-		DbTransaction transaction = dbRunner.getDbTransaction();
+		DbTransaction transaction = dbManager.getDbTransaction();
 		
 		// Test getting a field value
 		value = transaction.getField(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE id = ?", 1);		
@@ -82,7 +82,7 @@ public class DbTransactionTest
 		int index = 0;
 		
 		// Starts a transaction
-		DbTransaction transaction = dbRunner.getDbTransaction();		
+		DbTransaction transaction = dbManager.getDbTransaction();		
 		
 		// Test getting a field list
 		varcharValueList = transaction.getFieldList(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE id IN (" + Joiner.on(",").join(1, 2, 3, 4, 5) + ") ORDER BY Id");
@@ -111,7 +111,7 @@ public class DbTransactionTest
 		TestTableOneDao testTableOneDao = null;	
 		
 		// Starts a transaction
-		DbTransaction transaction = dbRunner.getDbTransaction();
+		DbTransaction transaction = dbManager.getDbTransaction();
 		
 		// Test getting an object
 		testTableOneDao = transaction.getObject(TestTableOneRowMapper.getInstance(), "SELECT id, varchar_field, clob_field FROM " + TEST_TABLE_ONE + " WHERE id = ?", 1);		
@@ -135,7 +135,7 @@ public class DbTransactionTest
 		int index = 0;
 		
 		// Starts a transaction
-		DbTransaction transaction = dbRunner.getDbTransaction();		
+		DbTransaction transaction = dbManager.getDbTransaction();		
 		
 		// Test getting an object list
 		testTableOneDaoList = transaction.getObjectList(TestTableOneRowMapper.getInstance(), "SELECT id, varchar_field, clob_field FROM " + TEST_TABLE_ONE + " WHERE id IN (" + Joiner.on(",").join(1, 2, 3, 4, 5) + ") ORDER BY Id");
@@ -165,21 +165,21 @@ public class DbTransactionTest
 		String value = null;		
 		
 		// Executes a insert statement and rollbacks it
-		DbTransaction transaction = dbRunner.getDbTransaction();
+		DbTransaction transaction = dbManager.getDbTransaction();
 		transaction.executeUpdate("INSERT INTO " + TEST_TABLE_ONE + " (varchar_field, clob_field) VALUES (?, ?);", expectedValue, "clob_value6");		
 		transaction.rollback();
 		
 		// Checks that the value is not inserted
-		value = dbRunner.getDbNonTransaction().getField(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE varchar_field = ?", expectedValue);		
+		value = dbManager.getDbNonTransaction().getField(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE varchar_field = ?", expectedValue);		
 		Assert.assertEquals("Value must be [" + "null" + "].", null, value);
 				
 		// Executes a insert statement and commits it
-		transaction = dbRunner.getDbTransaction();
+		transaction = dbManager.getDbTransaction();
 		transaction.executeUpdate("INSERT INTO " + TEST_TABLE_ONE + " (varchar_field, clob_field) VALUES (?, ?);", expectedValue, "clob_value6");		
 		transaction.commit();
 		
 		// Checks that the value is correctly inserted
-		value = dbRunner.getDbNonTransaction().getField(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE varchar_field = ?", expectedValue);		
+		value = dbManager.getDbNonTransaction().getField(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE varchar_field = ?", expectedValue);		
 		Assert.assertEquals("Value must be [" + expectedValue + "].", expectedValue, value);
 	}
 	
@@ -199,12 +199,12 @@ public class DbTransactionTest
 		arguments[2][1] = "so";
 				
 		// Executes a batch insert statement and commits it
-		DbTransaction transaction = dbRunner.getDbTransaction();
+		DbTransaction transaction = dbManager.getDbTransaction();
 		transaction.executeBatchUpdate("INSERT INTO " + TEST_TABLE_ONE + " (varchar_field, clob_field) VALUES (?, ?)", arguments);		
 		transaction.commit();
 		
 		// Checks that the fields are correctly inserted
-		transaction = dbRunner.getDbTransaction();
+		transaction = dbManager.getDbTransaction();
 		long value = transaction.getField(Long.class, "SELECT COUNT (id) FROM " + TEST_TABLE_ONE + " WHERE varchar_field IN (?, ?, ?)", firstVarcharValue, secondVarcharValue, thridVarcharValue);
 		Assert.assertEquals("Value must be [" + arguments.length + "].", arguments.length, value);
 		transaction.commit();
@@ -216,7 +216,7 @@ public class DbTransactionTest
 		long expectedId = 1;
 		
 		// Executes a insert statement and commits it
-		DbTransaction transaction = dbRunner.getDbTransaction();
+		DbTransaction transaction = dbManager.getDbTransaction();
 		DbKeyHolder keyHolder = transaction.executeUpdateWithKeys("INSERT INTO " + TEST_TABLE_TWO + " (varchar_field, clob_field) VALUES (?, ?)", "aa", "bb");		
 		transaction.commit();
 		
@@ -229,7 +229,7 @@ public class DbTransactionTest
 		String expectedName = "varchar_field";
 		
 		// Executes a insert statement and commits it
-		DbTransaction transaction = dbRunner.getDbTransaction();
+		DbTransaction transaction = dbManager.getDbTransaction();
 		
 		TestResultSetMetaDataHandler handler = transaction.getResultSetMetaData(new TestResultSetMetaDataHandler(), "SELECT * FROM " + TEST_TABLE_ONE);		
 		transaction.commit();
@@ -244,7 +244,7 @@ public class DbTransactionTest
 		int expectedCount = multipleInsertMapper.getValueGroups();		
 		
 		// Executes a multiple insert statement and commits it
-		DbTransaction transaction = dbRunner.getDbTransaction();
+		DbTransaction transaction = dbManager.getDbTransaction();
 		int inserts = transaction.multipleInsert("INSERT INTO " + TEST_TABLE_THREE + " (varchar_field, clob_field) VALUES ", multipleInsertMapper);		
 		transaction.commit();
 		
@@ -252,7 +252,7 @@ public class DbTransactionTest
 		Assert.assertEquals("Value must be [" + expectedCount + "].", expectedCount, inserts);
 		
 		// Checks that there are two rows in the database
-		transaction = dbRunner.getDbTransaction();
+		transaction = dbManager.getDbTransaction();
 		long count = transaction.getField(Long.class, "SELECT COUNT (id) FROM " + TEST_TABLE_THREE);
 		transaction.commit();
 		
@@ -270,7 +270,7 @@ public class DbTransactionTest
 		try
 		{		
 			// Executes a insert statement
-			transaction = dbRunner.getDbTransaction();
+			transaction = dbManager.getDbTransaction();
 			transaction.executeUpdate("INSERT INTO " + TEST_TABLE_ONE + " (varchar_field, clob_field) VALUES (?, ?);", expectedValue, "clob_value77");
 			// Throws an exception
 			transaction.executeUpdate("WRONG SQL");		
@@ -281,7 +281,7 @@ public class DbTransactionTest
 		}
 		
 		// Checks that the value is not inserted
-		value = dbRunner.getDbNonTransaction().getField(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE varchar_field = ?", expectedValue);		
+		value = dbManager.getDbNonTransaction().getField(String.class, "SELECT varchar_field FROM " + TEST_TABLE_ONE + " WHERE varchar_field = ?", expectedValue);		
 		Assert.assertEquals("Value must be [" + "null" + "].", null, value);
 		
 		try
@@ -303,19 +303,19 @@ public class DbTransactionTest
 	public void testSingleDbQueryPerThread()
 	{
 		// Starts a transaction
-		DbTransaction firstTransaction = dbRunner.getDbTransaction();
+		DbTransaction firstTransaction = dbManager.getDbTransaction();
 		
 		// Gets another transaction without finishing the previous one
-		DbTransaction secondTransaction = dbRunner.getDbTransaction();
+		DbTransaction secondTransaction = dbManager.getDbTransaction();
 		
 		// Gets a non transaction without finishing the previous queries
-		DbQuery firstQuery = dbRunner.getDbNonTransaction();
+		DbQuery firstQuery = dbManager.getDbNonTransaction();
 		
 		// Gets another transaction without finishing the previous queries
-		DbTransaction thirdTransaction = dbRunner.getDbTransaction();
+		DbTransaction thirdTransaction = dbManager.getDbTransaction();
 		
 		//  Gets a non transaction without finishing the previous queries
-		DbQuery secondQuery = dbRunner.getDbNonTransaction();
+		DbQuery secondQuery = dbManager.getDbNonTransaction();
 		
 		// Check that all queries are the same
 		Assert.assertEquals("Value must be [" + firstTransaction + "].", firstTransaction, secondTransaction);
@@ -331,7 +331,7 @@ public class DbTransactionTest
 	public void testConnectionClosed() throws Throwable
 	{
 		// Starts a transaction
-		DbTransaction transaction = dbRunner.getDbTransaction();
+		DbTransaction transaction = dbManager.getDbTransaction();
 		
 		transaction.getField(Integer.class, "SELECT id FROM " + TEST_TABLE_ONE + " WHERE id = ?", 1);		
 		// Checks that there is one active connection
@@ -356,7 +356,8 @@ public class DbTransactionTest
 		url = url + "SET SCHEMA TEST_SCHEMA";	
 			
 		dataSource = JdbcConnectionPool.create(url, "testUser", "testPassword");;
-		dbRunner = new DbRunner(dataSource);
+		dbManager = new DbManager();
+		dbManager.init(dataSource);
 		
 		QueryRunner query = new QueryRunner(dataSource);
 		query.update(readSql("/es/molabs/jdbc/test/script/create_tables.sql"));
@@ -381,6 +382,6 @@ public class DbTransactionTest
 		QueryRunner query = new QueryRunner(dataSource);
 		query.update("DROP ALL OBJECTS DELETE FILES");
 		
-		dbRunner = null;
+		dbManager = null;
 	}
 }

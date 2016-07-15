@@ -27,21 +27,21 @@ public class DbTransaction extends DbQuery
 	private Connection connection = null;
 	private boolean readOnly;
 	
-	DbTransaction(DbRunner dbRunner) throws DbException
+	DbTransaction(DbManager dbManager) throws DbException
 	{
-		this(dbRunner, false);
+		this(dbManager, false);
 	}
 	
-	DbTransaction(DbRunner dbRunner, boolean readOnly) throws DbException 
+	DbTransaction(DbManager dbManager, boolean readOnly) throws DbException 
 	{
-		super(dbRunner);
+		super(dbManager);
 		
 		this.readOnly = readOnly;
 		
 		try
 		{
 			// Sets this transaction as active
-			dbRunner.setActiveDbTransaction(this);
+			dbManager.setActiveDbTransaction(this);
 			
 			connection = getQueryRunner().getDataSource().getConnection();
 			connection.setAutoCommit(false);
@@ -67,7 +67,7 @@ public class DbTransaction extends DbQuery
 		{
 			connection = null;
 			
-			getDbRunner().clearActiveDbTransaction();
+			getDbManager().clearActiveDbTransaction();
 		}
 	}
 	
@@ -85,7 +85,7 @@ public class DbTransaction extends DbQuery
 		{
 			connection = null;
 			
-			getDbRunner().clearActiveDbTransaction();	
+			getDbManager().clearActiveDbTransaction();	
 		}
 	}
 	

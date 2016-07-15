@@ -38,18 +38,18 @@ public abstract class DbQuery
 {
 	private Logger logger = LoggerFactory.getLogger(getClass());
 	
-	private DbRunner dbRunner = null;
+	private DbManager dbManager = null;
 	private QueryRunner queryRunner = null;
 	
-	DbQuery(DbRunner dbRunner)
+	DbQuery(DbManager dbManager)
 	{
-		this.dbRunner = dbRunner;
-		this.queryRunner = dbRunner.getQueryRunner();
+		this.dbManager = dbManager;
+		this.queryRunner = dbManager.getQueryRunner();
 	}
 	
-	protected DbRunner getDbRunner()
+	protected DbManager getDbManager()
 	{
-		return dbRunner;
+		return dbManager;
 	}
 	
 	protected QueryRunner getQueryRunner()

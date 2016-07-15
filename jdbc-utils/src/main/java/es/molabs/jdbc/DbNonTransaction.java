@@ -23,9 +23,9 @@ import es.molabs.jdbc.exception.DbException;
 
 public class DbNonTransaction extends DbQuery
 {
-	DbNonTransaction(DbRunner dbRunner) 
+	DbNonTransaction(DbManager dbManager) 
 	{
-		super(dbRunner);
+		super(dbManager);
 	}
 
 	protected Connection getConnection() throws SQLException
