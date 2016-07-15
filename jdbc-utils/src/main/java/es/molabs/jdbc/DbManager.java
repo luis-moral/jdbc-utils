@@ -67,6 +67,8 @@ public class DbManager
 			// Sets the manager as not initialized
 			initialized = false;
 			
+			queryRunner = null;
+			
 			logger.info("Destroyed.");
 		}
 		else
