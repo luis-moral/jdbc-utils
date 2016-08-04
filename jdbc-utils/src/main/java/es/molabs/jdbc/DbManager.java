@@ -200,7 +200,7 @@ public class DbManager
 			{
 				transaction.rollback();
 			}
-			catch (Throwable t)
+			catch (Exception e)
 			{				
 			}
 		}

@@ -47,9 +47,9 @@ public class DbTransaction extends DbQuery
 			connection.setAutoCommit(false);
 			connection.setReadOnly(readOnly);
 		}
-		catch (Throwable t)
+		catch (Exception e)
 		{
-			throw new DbException(t);
+			throw new DbException(e);
 		}
 	}
 
@@ -59,9 +59,9 @@ public class DbTransaction extends DbQuery
 		{
 			DbUtils.commitAndClose(connection);
 		}
-		catch (Throwable t)
+		catch (Exception e)
 		{
-			throw new DbException(t);
+			throw new DbException(e);
 		}
 		finally
 		{
@@ -77,9 +77,9 @@ public class DbTransaction extends DbQuery
 		{
 			DbUtils.rollbackAndClose(connection);
 		}
-		catch (Throwable t)
+		catch (Exception e)
 		{
-			throw new DbException(t);
+			throw new DbException(e);
 		}
 		finally
 		{

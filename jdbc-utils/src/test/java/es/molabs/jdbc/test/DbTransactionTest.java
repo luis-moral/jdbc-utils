@@ -276,7 +276,7 @@ public class DbTransactionTest
 			transaction.executeUpdate("WRONG SQL");		
 			transaction.commit();
 		}
-		catch (Throwable t)
+		catch (Exception e)
 		{			
 		}
 		

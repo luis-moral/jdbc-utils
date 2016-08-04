@@ -80,9 +80,9 @@ public abstract class DbQuery
 			
 			field = queryRunner.query(connection, sql, new SingleRowHandler<T>(new FieldRowMapper<T>()), arguments);
 		} 
-		catch (Throwable t)
+		catch (Exception e)
 		{
-			handleException(t);
+			handleException(e);
 		}
 		finally
 		{
@@ -115,9 +115,9 @@ public abstract class DbQuery
 			
 			fieldList = queryRunner.query(connection, sql, new MultipleRowHandler<T>(new FieldRowMapper<T>()), arguments);
 		} 
-		catch (Throwable t)
+		catch (Exception e)
 		{
-			handleException(t);
+			handleException(e);
 		}
 		finally
 		{
@@ -152,9 +152,9 @@ public abstract class DbQuery
 			
 			object = queryRunner.query(connection, sql, new SingleRowHandler<T>(dbRowMapper), arguments);
 		} 
-		catch (Throwable t)
+		catch (Exception e)
 		{
-			handleException(t);
+			handleException(e);
 		}
 		finally
 		{
@@ -189,9 +189,9 @@ public abstract class DbQuery
 			
 			objectList = queryRunner.query(connection, sql, new MultipleRowHandler<T>(dbRowMapper), arguments);
 		} 
-		catch (Throwable t)
+		catch (Exception e)
 		{
-			handleException(t);
+			handleException(e);
 		}
 		finally
 		{
@@ -222,9 +222,9 @@ public abstract class DbQuery
 			
 			result = queryRunner.update(connection, sql, arguments);
 		} 
-		catch (Throwable t)
+		catch (Exception e)
 		{
-			handleException(t);
+			handleException(e);
 		}
 		finally
 		{
@@ -255,9 +255,9 @@ public abstract class DbQuery
 			
 			result = queryRunner.batch(connection, sql, arguments);
 		}
-		catch (Throwable t)
+		catch (Exception e)
 		{
-			handleException(t);
+			handleException(e);
 		}
 		finally
 		{
@@ -288,9 +288,9 @@ public abstract class DbQuery
 			
 			keyHolder = queryRunner.insert(connection, sql, GeneratedKeysHandler.getInstance(), arguments);
 		}
-		catch (Throwable t)
+		catch (Exception e)
 		{
-			handleException(t);
+			handleException(e);
 		}
 		finally
 		{
@@ -310,9 +310,9 @@ public abstract class DbQuery
 			
 			queryRunner.query(connection, sql, new ResultSetMetaDataHandler(handler), arguments);
 		}
-		catch (Throwable t)
+		catch (Exception e)
 		{
-			handleException(t);
+			handleException(e);
 		}
 		finally
 		{

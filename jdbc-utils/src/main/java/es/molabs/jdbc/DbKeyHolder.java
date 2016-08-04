@@ -75,7 +75,7 @@ public class DbKeyHolder
 		{
 			return (T) keyList.get(0).entrySet().iterator().next().getValue();
 		}
-		catch (Throwable t)
+		catch (Exception e)
 		{
 			return null;
 		}
